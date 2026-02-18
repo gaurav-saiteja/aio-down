@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react'
+import Image from 'next/image'
 
 interface ThumbCardProps {
     size:  'medium' | 'large',
@@ -9,17 +10,17 @@ const ThumbCard = memo(({ size, videoId }: ThumbCardProps) => {
   const [imageError, setImageError] = useState(false);
 
   const { thumbnailUrl, sizeClasses } = useMemo(() => {
-    const sizeClasses = size === 'medium' ? 'w-96' : 'w-128';
+    const classes = size === 'medium' ? 'w-96' : 'w-128';
     
     if (!videoId || imageError) {
-      return { thumbnailUrl: null, sizeClasses };
+      return { thumbnailUrl: null, sizeClasses: classes };
     }
 
-    const thumbnailUrl = size === 'medium'
+    const url = size === 'medium'
       ? `https://img.youtube.com/vi/${videoId}/sddefault.jpg`
       : `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
-    return { thumbnailUrl, sizeClasses };
+    return { thumbnailUrl: url, sizeClasses: classes };
   }, [size, videoId, imageError]);
 
   const handleImageError = () => setImageError(true);
@@ -53,16 +54,17 @@ const ThumbCard = memo(({ size, videoId }: ThumbCardProps) => {
     <div className={`${sizeClasses} aspect-video flex relative rounded-lg overflow-hidden shadow-lg shadow-neutral-400/80 group`}>
       {thumbnailUrl ? (
         <>
-          <img 
+          <Image 
             src={thumbnailUrl} 
             alt="YouTube Thumbnail" 
-            className="w-full h-full object-cover" 
+            fill
+            className="object-cover"
             onError={handleImageError}
-            loading="lazy"
+            unoptimized
           />
           <button
             onClick={handleDownload}
-            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100"
+            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100 z-10"
             aria-label="Download thumbnail"
           >
             <svg 

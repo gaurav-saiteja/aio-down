@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Define interfaces for the expected structure
+interface InstagramMediaResource {
+  src: string;
+}
+
+interface InstagramMedia {
+  video_url?: string;
+  display_resources?: InstagramMediaResource[];
+}
+
+interface InstagramGraphQLResponse {
+  data?: {
+    xdt_shortcode_media?: InstagramMedia;
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { shortcode } = await request.json();
@@ -34,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       throw new Error(`Instagram API error! status: ${response.status}`);
     }
-    const data = await response.json();
+    const data: InstagramGraphQLResponse = await response.json();
     console.log(data);
     const videoUrl = extractVideoUrlFromResponse(data);
     const previewUrl = extractPreviewFromResponse(data);
@@ -93,7 +109,7 @@ function encodeGraphqlRequestData(shortcode: string): string {
   return new URLSearchParams(requestData).toString();
 }
 
-function extractVideoUrlFromResponse(response: any): string {
+function extractVideoUrlFromResponse(response: InstagramGraphQLResponse): string {
   try {
     const mediaData = response.data?.xdt_shortcode_media;
     
@@ -111,7 +127,7 @@ function extractVideoUrlFromResponse(response: any): string {
   }
 }
 
-function extractPreviewFromResponse(response: any): string {
+function extractPreviewFromResponse(response: InstagramGraphQLResponse): string {
   try {
     const mediaData = response.data?.xdt_shortcode_media;
     

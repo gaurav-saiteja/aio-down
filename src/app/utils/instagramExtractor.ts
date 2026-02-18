@@ -36,7 +36,7 @@ function extractShortcodeFromUrl(url: string): string | null {
   const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?/;
   const reelRegex = /^https:\/\/(?:www\.)?instagram\.com\/reels?\/([a-zA-Z0-9_-]+)\/?/;
 
-  let match = url.match(shareRegex) || url.match(postRegex) || url.match(reelRegex);
+  const match = url.match(shareRegex) || url.match(postRegex) || url.match(reelRegex);
   
   if (match) {
     return match[1];

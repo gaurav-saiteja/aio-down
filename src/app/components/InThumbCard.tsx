@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useState } from 'react'
+import Image from 'next/image'
 
 interface ThumbCardProps {
   previewUrl: string;
@@ -20,7 +21,8 @@ const InThumbCard = memo(({ previewUrl, title = "Thumbnail" }: ThumbCardProps) =
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `instagram-video-${Date.now()}.mp4`;
+      // Fixed file extension to .jpg since this is a thumbnail card
+      link.download = `instagram-thumbnail-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -39,16 +41,18 @@ const InThumbCard = memo(({ previewUrl, title = "Thumbnail" }: ThumbCardProps) =
     <div className="w-128 aspect-video flex relative rounded-lg overflow-hidden shadow-lg shadow-neutral-400/80 group">
       {previewUrl && !videoError ? (
         <>
-          <img 
+          <Image 
             src={previewUrl} 
-            className="w-full h-full object-cover" 
-            onError={handleVideoError}
             alt={title}
+            fill
+            className="object-cover"
+            onError={handleVideoError}
+            unoptimized
           />
           <button
             onClick={handleDownload}
-            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100"
-            aria-label="Download video"
+            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100 z-10"
+            aria-label="Download thumbnail"
           >
             <svg 
               width="16" 

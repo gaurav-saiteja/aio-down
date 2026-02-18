@@ -90,7 +90,7 @@ const InSection = React.memo(() => {
           } = await extractInstagramVideoUrl(debouncedUrl);
           setVideoUrl(extractedVideoUrl);
           setPreviewUrl(extractedPreviewUrl);
-        } catch (err) {
+        } catch {
           setError(
             'Failed to extract video. Please check the URL or try again.'
           );
