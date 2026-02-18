@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from 'react'
-import Image from 'next/image'
 
 interface ThumbCardProps {
   previewUrl: string;
@@ -11,17 +10,23 @@ const InThumbCard = memo(({ previewUrl, title = "Thumbnail" }: ThumbCardProps) =
 
   const handleVideoError = () => setVideoError(true);
 
+  // Construct the proxy URL
+  // This tells your server to fetch the image, bypassing browser CORB/CORS checks
+  const proxyUrl = previewUrl 
+    ? `/api/proxy?url=${encodeURIComponent(previewUrl)}` 
+    : null;
+
   const handleDownload = useCallback(async () => {
-    if (!previewUrl) return;
+    if (!proxyUrl) return;
     
     try {
-      const response = await fetch(previewUrl);
+      // Fetch from OUR proxy, not Instagram directly
+      const response = await fetch(proxyUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       
       const link = document.createElement('a');
       link.href = url;
-      // Fixed file extension to .jpg since this is a thumbnail card
       link.download = `instagram-thumbnail-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
@@ -30,7 +35,7 @@ const InThumbCard = memo(({ previewUrl, title = "Thumbnail" }: ThumbCardProps) =
     } catch (error) {
       console.error('Download failed:', error);
     }
-  }, [previewUrl]);
+  }, [proxyUrl]);
 
   // Reset error state when videoUrl changes
   React.useEffect(() => {
@@ -38,21 +43,21 @@ const InThumbCard = memo(({ previewUrl, title = "Thumbnail" }: ThumbCardProps) =
   }, [previewUrl]);
 
   return (
-    <div className="w-128 aspect-video flex relative rounded-lg overflow-hidden shadow-lg shadow-neutral-400/80 group">
-      {previewUrl && !videoError ? (
+    // Fixed: w-128 does not exist -> w-[32rem]
+    <div className="w-[32rem] aspect-video flex relative rounded-lg overflow-hidden shadow-lg shadow-neutral-400/80 group">
+      {proxyUrl && !videoError ? (
         <>
-          <Image 
-            src={previewUrl} 
-            alt={title}
-            fill
-            className="object-cover"
+          <img 
+            src={proxyUrl} 
+            className="w-full h-full object-cover" 
             onError={handleVideoError}
-            unoptimized
+            alt={title}
+            // We don't need referrerPolicy here anymore because we are hitting our own API
           />
           <button
             onClick={handleDownload}
-            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100 z-10"
-            aria-label="Download thumbnail"
+            className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-100"
+            aria-label="Download video"
           >
             <svg 
               width="16" 
